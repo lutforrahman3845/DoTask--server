@@ -1,6 +1,6 @@
 const express = require("express");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cros = require("cors");
 const port = process.env.PORT || 5000;
 const app = express();
@@ -33,10 +33,22 @@ async function run() {
         res.json(result);
       }
     });
-    app.post("/tasks" , async (req, res) => {
+    app.post("/tasks", async (req, res) => {
       const task = req.body;
       const result = await taskCollection.insertOne(task);
       res.json(result);
+    });
+    app.get("/tasks", async (req, res) => {
+      const userId = req.query.userId;
+      const query = { userId: userId };
+      const result = await taskCollection.find(query).toArray();
+      res.json(result);
+    });
+    app.delete("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await taskCollection.deleteOne(query);
+      res.send(result);
     });
 
     // Connect the client to the server	(optional starting in v4.7)
